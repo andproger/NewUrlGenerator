@@ -6,10 +6,12 @@ import storage.UrlStorage
 class UrlShorter {
 
     private val urlStorage: UrlStorage = UrlMemoryStorage()
-    private val urlGenerator: UrlGenerator = UrlRandomGenerator(urlStorage)
+    private val urlGenerator: UrlGenerator = UrlRandomGenerator()
 
     fun generateUrl(originalUrl: String): String {
-        return urlGenerator.generate(originalUrl)
+        val shortUrl = urlGenerator.generate(originalUrl)
+        urlStorage.save(shortUrl, originalUrl)
+        return shortUrl
     }
 
     fun getOriginalUrl(shortUrl: String): String? {
