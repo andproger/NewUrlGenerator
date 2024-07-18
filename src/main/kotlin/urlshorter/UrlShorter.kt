@@ -59,17 +59,17 @@ class UrlShorter(
             const val HOST_ADDRESS = "http://example.com"
             const val URLS_STORAGE_LIMIT = 100
             const val ENG_ALPHABET = "abcdeqwrtyuiop"
-            const val MAX_URL_KEY_SIZE = 6
+            const val URL_KEY_MAX_SIZE = 6
 
             fun memoryStorage() = UrlMemoryStorage()
 
             fun randomGenerator() = UrlKeyRandomGenerator(
-                MAX_URL_KEY_SIZE,
+                URL_KEY_MAX_SIZE,
                 ENG_ALPHABET
             )
 
             fun validator(urlStorage: UrlStorage) = UniqueUrlKeyValidator(
-                MAX_URL_KEY_SIZE,
+                URL_KEY_MAX_SIZE,
                 ENG_ALPHABET,
                 urlStorage
             )
