@@ -8,6 +8,10 @@ class UrlMemoryStorage : UrlStorage {
         urlStorage[shortUrl] = originalUrl
     }
 
+    override fun getCount(): Int {
+        return urlStorage.size
+    }
+
     override fun getOriginalUrl(shortUrl: String): String? {
         return urlStorage[shortUrl]
     }

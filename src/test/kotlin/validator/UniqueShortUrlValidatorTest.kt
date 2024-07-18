@@ -14,6 +14,8 @@ class UniqueShortUrlValidatorTest {
             urlStorage[shortUrl] = originalUrl
         }
 
+        override fun getCount(): Int = throw NotImplementedError()
+
         override fun getOriginalUrl(shortUrl: String): String? {
             return urlStorage[shortUrl]
         }
