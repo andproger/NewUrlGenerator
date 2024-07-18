@@ -7,9 +7,6 @@ import validator.UrlValidator
 
 class UrlShorter {
 
-    private val ALPHABET = "abcdeqwertyuiop"
-    private val MAX_SIZE_URL = 6
-
     private val urlStorage: UrlStorage = UrlMemoryStorage()
     private val urlGenerator: UrlGenerator = UrlRandomGenerator(MAX_SIZE_URL, ALPHABET)
     private val uniqueShortUrlValidator: UrlValidator = UniqueShortUrlValidator(MAX_SIZE_URL, ALPHABET, urlStorage)
@@ -34,5 +31,7 @@ class UrlShorter {
 
     companion object {
         private const val MAX_GENERATE_TRIES = 5
+        private const val ALPHABET = "abcdeqwertyuiop"
+        private const val MAX_SIZE_URL = 6
     }
 }
