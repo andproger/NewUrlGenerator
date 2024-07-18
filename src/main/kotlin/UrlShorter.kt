@@ -1,15 +1,15 @@
-import generator.UrlGenerator
-import generator.UrlRandomGenerator
+import generator.UrlKeyGenerator
+import generator.UrlKeyRandomGenerator
 import storage.UrlMemoryStorage
 import storage.UrlStorage
-import validator.UniqueShortUrlValidator
-import validator.UrlValidator
+import validator.UniqueUrlKeyValidator
+import validator.UrlKeyValidator
 
 class UrlShorter {
 
     private val urlStorage: UrlStorage = UrlMemoryStorage()
-    private val urlGenerator: UrlGenerator = UrlRandomGenerator(MAX_SIZE_URL, ALPHABET)
-    private val uniqueShortUrlValidator: UrlValidator = UniqueShortUrlValidator(MAX_SIZE_URL, ALPHABET, urlStorage)
+    private val urlKeyGenerator: UrlKeyGenerator = UrlKeyRandomGenerator(MAX_URL_KEY_SIZE, ALPHABET)
+    private val uniqueUrlKeyValidator: UrlKeyValidator = UniqueUrlKeyValidator(MAX_URL_KEY_SIZE, ALPHABET, urlStorage)
 
     fun generateUrl(originalUrl: String): String {
         //TODO move hole logic to separate class or refactor UrlShorter to be testable(unit tests)
@@ -20,10 +20,10 @@ class UrlShorter {
         var tries = 0
         while (tries < MAX_GENERATE_TRIES) {
             tries++
-            val shortUrl = urlGenerator.generate(originalUrl)
-            if (uniqueShortUrlValidator.isValid(shortUrl)) {
-                urlStorage.save(shortUrl, originalUrl)
-                return shortUrl
+            val urlKey = urlKeyGenerator.generate(originalUrl)
+            if (uniqueUrlKeyValidator.isValid(urlKey)) {
+                urlStorage.save(urlKey, originalUrl)
+                return "$HOST_ADDRESS/$urlKey"
             }
         }
 
@@ -31,15 +31,17 @@ class UrlShorter {
     }
 
     fun getOriginalUrl(shortUrl: String): String? {
-        return urlStorage.getOriginalUrl(shortUrl)
+        val urlKey = shortUrl.split("/").last()
+        return urlStorage.getOriginalUrl(urlKey)
     }
 
     private fun errorMessage(message: String) = "ERROR: $message"
 
     companion object {
         private const val MAX_GENERATE_TRIES = 5
-        private const val ALPHABET = "abcdeqwertyuiop"
-        private const val MAX_SIZE_URL = 6
+        private const val ALPHABET = "abcdeqwrtyuiop"
+        private const val HOST_ADDRESS = "http://example.com"
+        private const val MAX_URL_KEY_SIZE = 6
         private const val URLS_STORAGE_LIMIT = 100
     }
 }

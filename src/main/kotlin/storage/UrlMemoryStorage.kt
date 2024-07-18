@@ -4,15 +4,15 @@ class UrlMemoryStorage : UrlStorage {
 
     private val urlStorage = mutableMapOf<String, String>()
 
-    override fun save(shortUrl: String, originalUrl: String) {
-        urlStorage[shortUrl] = originalUrl
+    override fun save(urlKey: String, originalUrl: String) {
+        urlStorage[urlKey] = originalUrl
     }
 
     override fun getCount(): Int {
         return urlStorage.size
     }
 
-    override fun getOriginalUrl(shortUrl: String): String? {
-        return urlStorage[shortUrl]
+    override fun getOriginalUrl(urlKey: String): String? {
+        return urlStorage[urlKey]
     }
 }

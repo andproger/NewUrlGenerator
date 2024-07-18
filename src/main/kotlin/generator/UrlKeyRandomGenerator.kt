@@ -2,14 +2,14 @@ package generator
 
 import kotlin.random.Random
 
-class UrlRandomGenerator(
-    private val maxUrlSize: Int,
+class UrlKeyRandomGenerator(
+    private val maxUrlKeySize: Int,
     private val alphabet: String
-) : UrlGenerator {
+) : UrlKeyGenerator {
 
     override fun generate(originalUrl: String): String {
         val result = StringBuilder()
-        for (i in 0 until maxUrlSize) {
+        for (i in 0 until maxUrlKeySize) {
             result.append(alphabet[Random.nextInt(alphabet.length)])
         }
         return result.toString()

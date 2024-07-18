@@ -4,24 +4,24 @@ package validator
 import org.junit.jupiter.api.Test
 import storage.UrlStorage
 
-class UniqueShortUrlValidatorTest {
+class UniqueUrlKeyValidatorTest {
 
     //TODO add dependency Mockito or Mockk
     private val stubUrlStorage = object : UrlStorage {
         private val urlStorage = mutableMapOf<String, String>()
 
-        override fun save(shortUrl: String, originalUrl: String) {
-            urlStorage[shortUrl] = originalUrl
+        override fun save(urlKey: String, originalUrl: String) {
+            urlStorage[urlKey] = originalUrl
         }
 
         override fun getCount(): Int = throw NotImplementedError()
 
-        override fun getOriginalUrl(shortUrl: String): String? {
-            return urlStorage[shortUrl]
+        override fun getOriginalUrl(urlKey: String): String? {
+            return urlStorage[urlKey]
         }
     }
 
-    private val validator: UrlValidator = UniqueShortUrlValidator(
+    private val validator: UrlKeyValidator = UniqueUrlKeyValidator(
         6,
         "abc",
         stubUrlStorage

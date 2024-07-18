@@ -1,5 +1,5 @@
 package generator
 
-interface UrlGenerator {
+interface UrlKeyGenerator {
     fun generate(originalUrl: String): String
 }
