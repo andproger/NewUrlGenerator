@@ -1,4 +1,4 @@
-package storage
+package urlshorter.storage
 
 interface UrlStorage {
     fun save(urlKey: String, originalUrl: String)

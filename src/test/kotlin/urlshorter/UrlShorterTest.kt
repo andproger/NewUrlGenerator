@@ -1,4 +1,7 @@
+package urlshorter
+
 import org.junit.jupiter.api.Test
+import urlshorter.UrlShorter
 
 //TODO write unit tests
 class UrlShorterTest {

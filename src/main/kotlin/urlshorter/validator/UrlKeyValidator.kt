@@ -1,4 +1,4 @@
-package validator
+package urlshorter.validator
 
 interface UrlKeyValidator {
     fun isValid(urlKey: String): Boolean

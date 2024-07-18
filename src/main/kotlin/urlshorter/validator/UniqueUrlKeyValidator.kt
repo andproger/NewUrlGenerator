@@ -1,6 +1,6 @@
-package validator
+package urlshorter.validator
 
-import storage.UrlStorage
+import urlshorter.storage.UrlStorage
 
 class UniqueUrlKeyValidator(
     private val maxUrlKeySize: Int,

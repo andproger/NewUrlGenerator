@@ -1,4 +1,4 @@
-package generator
+package urlshorter.generator
 
 import kotlin.random.Random
 

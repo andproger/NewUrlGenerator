@@ -1,3 +1,5 @@
+import urlshorter.UrlShorter
+
 fun main() {
     val urlShorter = UrlShorter()
     val longUrl = "http://googgle.com/qwertyuiopasdfghjk"

@@ -1,4 +1,4 @@
-package storage
+package urlshorter.storage
 
 class UrlMemoryStorage : UrlStorage {
 

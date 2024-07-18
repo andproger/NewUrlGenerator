@@ -1,8 +1,10 @@
-package validator
+package urlshorter.validator
 
 
 import org.junit.jupiter.api.Test
-import storage.UrlStorage
+import urlshorter.storage.UrlStorage
+import urlshorter.validator.UniqueUrlKeyValidator
+import urlshorter.validator.UrlKeyValidator
 
 class UniqueUrlKeyValidatorTest {
 

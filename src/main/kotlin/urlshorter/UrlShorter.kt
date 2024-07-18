@@ -1,9 +1,11 @@
-import generator.UrlKeyGenerator
-import generator.UrlKeyRandomGenerator
-import storage.UrlMemoryStorage
-import storage.UrlStorage
-import validator.UniqueUrlKeyValidator
-import validator.UrlKeyValidator
+package urlshorter
+
+import urlshorter.generator.UrlKeyGenerator
+import urlshorter.generator.UrlKeyRandomGenerator
+import urlshorter.storage.UrlMemoryStorage
+import urlshorter.storage.UrlStorage
+import urlshorter.validator.UniqueUrlKeyValidator
+import urlshorter.validator.UrlKeyValidator
 
 class UrlShorter(
     private val urlStorage: UrlStorage = Defaults.memoryStorage(),
