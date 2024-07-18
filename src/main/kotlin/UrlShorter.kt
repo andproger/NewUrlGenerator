@@ -5,25 +5,25 @@ import storage.UrlStorage
 import validator.UniqueUrlKeyValidator
 import validator.UrlKeyValidator
 
-class UrlShorter {
-
-    private val urlStorage: UrlStorage = UrlMemoryStorage()
-    private val urlKeyGenerator: UrlKeyGenerator = UrlKeyRandomGenerator(MAX_URL_KEY_SIZE, ALPHABET)
-    private val uniqueUrlKeyValidator: UrlKeyValidator = UniqueUrlKeyValidator(MAX_URL_KEY_SIZE, ALPHABET, urlStorage)
+class UrlShorter(
+    private val urlStorage: UrlStorage = Defaults.memoryStorage(),
+    private val urlKeyGenerator: UrlKeyGenerator = Defaults.randomGenerator(),
+    private val uniqueUrlKeyValidator: UrlKeyValidator = Defaults.validator(urlStorage),
+    private val options: Options = Options.default
+) {
 
     fun generateUrl(originalUrl: String): String {
-        //TODO move hole logic to separate class or refactor UrlShorter to be testable(unit tests)
-        if (urlStorage.getCount() >= URLS_STORAGE_LIMIT) {
-            return errorMessage("Saving limit $URLS_STORAGE_LIMIT exceeded.")
+        if (urlStorage.getCount() >= options.urlsStorageLimit) {
+            return errorMessage("Saving limit ${options.urlsStorageLimit} exceeded.")
         }
 
         var tries = 0
-        while (tries < MAX_GENERATE_TRIES) {
+        while (tries < options.generateTriesLimit) {
             tries++
             val urlKey = urlKeyGenerator.generate(originalUrl)
             if (uniqueUrlKeyValidator.isValid(urlKey)) {
                 urlStorage.save(urlKey, originalUrl)
-                return "$HOST_ADDRESS/$urlKey"
+                return "${options.host}/$urlKey"
             }
         }
 
@@ -37,11 +37,40 @@ class UrlShorter {
 
     private fun errorMessage(message: String) = "ERROR: $message"
 
-    companion object {
-        private const val MAX_GENERATE_TRIES = 5
-        private const val ALPHABET = "abcdeqwrtyuiop"
-        private const val HOST_ADDRESS = "http://example.com"
-        private const val MAX_URL_KEY_SIZE = 6
-        private const val URLS_STORAGE_LIMIT = 100
+    data class Options(
+        val generateTriesLimit: Int,
+        val host: String,
+        val urlsStorageLimit: Int
+    ) {
+        companion object {
+            val default = Options(
+                generateTriesLimit = Defaults.GENERATE_TRIES_LIMIT,
+                host = Defaults.HOST_ADDRESS,
+                urlsStorageLimit = Defaults.URLS_STORAGE_LIMIT
+            )
+        }
+    }
+
+    class Defaults {
+        companion object {
+            const val GENERATE_TRIES_LIMIT = 5
+            const val HOST_ADDRESS = "http://example.com"
+            const val URLS_STORAGE_LIMIT = 100
+            const val ENG_ALPHABET = "abcdeqwrtyuiop"
+            const val MAX_URL_KEY_SIZE = 6
+
+            fun memoryStorage() = UrlMemoryStorage()
+
+            fun randomGenerator() = UrlKeyRandomGenerator(
+                MAX_URL_KEY_SIZE,
+                ENG_ALPHABET
+            )
+
+            fun validator(urlStorage: UrlStorage) = UniqueUrlKeyValidator(
+                MAX_URL_KEY_SIZE,
+                ENG_ALPHABET,
+                urlStorage
+            )
+        }
     }
 }
