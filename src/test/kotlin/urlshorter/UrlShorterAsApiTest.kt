@@ -1,6 +1,9 @@
 package urlshorter
 
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Timeout
+import urlshorter.generator.UrlKeyRandomGenerator
+import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 
 
@@ -24,21 +27,45 @@ class UrlShorterAsApiTest {
     }
 
     @Test
-    fun `defaults and custom host - generateUrl 100 times - returned short urls & returned originalUrls`() {
+    fun `custom host and alphabet - generateUrl once and try to get by fake short url - returned short url and null for originalUrl`() {
         //GIVEN
-        val count = 100
         val host = "myhost.my"
+        val urlShorter = UrlShorter(
+            urlKeyGenerator = UrlKeyRandomGenerator(
+                UrlShorter.Defaults.URL_KEY_MAX_SIZE,
+                "abc"
+            ),
+            options = UrlShorter.Options.default.copy(host = host)
+        )
+        val url = "http://google.com/sdfdsfsdf/sdfdsf"
 
         //WHEN
-        val testResults = testTimes(
-            count = count,
-            host = host,
-            urlsStorageLimit = null
-        )
+        urlShorter.generateUrl(url)
+        val originalUrl = urlShorter.getOriginalUrl("unknown.com/123123")
 
         //THEN
-        assert(testResults.allShortUrlsCorrect(host))
-        assertEquals(testResults.urls, testResults.originalUrls)
+        assertEquals(null, originalUrl)
+    }
+
+    @Test
+    fun `custom host and alphabet - generateUrl once - returned short url key contains custom alphabet`() {
+        //GIVEN
+        val host = "myhost.my"
+        val alphabet = "ab"
+        val urlShorter = UrlShorter(
+            urlKeyGenerator = UrlKeyRandomGenerator(
+                UrlShorter.Defaults.URL_KEY_MAX_SIZE,
+                alphabet
+            ),
+            options = UrlShorter.Options.default.copy(host = host)
+        )
+        val url = "http://google.com/sdfdsfsdf/sdfdsf"
+
+        //WHEN
+        val shortUrl = urlShorter.generateUrl(url)
+
+        //THEN
+        assert(shortUrl.split("/").last().all { alphabet.contains(it) })
     }
 
     @Test
@@ -64,9 +91,10 @@ class UrlShorterAsApiTest {
     }
 
     @Test
-    fun `1000 for storage and custom host - generateUrl 1000 times - returned 1000 short urls`() {
+    @Timeout(value = 10, unit = TimeUnit.SECONDS)
+    fun `10 million for storage and custom host - generateUrl 10 million times - returned 10 million short urls`() {
         //GIVEN
-        val count = 1000
+        val count = 10_000_000
         val host = "myhost.my"
 
         //WHEN
@@ -77,27 +105,7 @@ class UrlShorterAsApiTest {
         )
 
         //THEN
-        val allResultsCorrect = testResults.allShortUrlsCorrect(host)
-        assert(allResultsCorrect)
-        assertEquals(testResults.urls, testResults.originalUrls)
-    }
-
-    @Test
-    fun `100_000 for storage and custom host - generateUrl 100_000 times - returned 100_000 short urls`() {
-        //GIVEN
-        val count = 100_000
-        val host = "myhost.my"
-
-        //WHEN
-        val testResults = testTimes(
-            count = count,
-            host = host,
-            urlsStorageLimit = count
-        )
-
-        //THEN
-        val allResultsCorrect = testResults.allShortUrlsCorrect(host)
-        assert(allResultsCorrect)
+        assert(testResults.allShortUrlsCorrect(host))
         assertEquals(testResults.urls, testResults.originalUrls)
     }
 
