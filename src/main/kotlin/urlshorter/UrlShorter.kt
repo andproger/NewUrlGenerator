@@ -58,7 +58,7 @@ class UrlShorter(
             const val GENERATE_TRIES_LIMIT = 5
             const val HOST_ADDRESS = "http://example.com"
             const val URLS_STORAGE_LIMIT = 100
-            const val ENG_ALPHABET = "abcdeqwrtyuiop"
+            const val ENG_ALPHABET = "abcdefghijklmnopqrstuvwxyz"
             const val URL_KEY_MAX_SIZE = 6
 
             fun memoryStorage() = UrlMemoryStorage()
