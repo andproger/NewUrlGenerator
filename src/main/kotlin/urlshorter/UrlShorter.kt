@@ -12,9 +12,9 @@ class UrlShorter(
     private val urlKeyGenerator: UrlKeyGenerator = Defaults.randomGenerator(),
     private val uniqueUrlKeyValidator: UrlKeyValidator = Defaults.validator(urlStorage),
     private val options: Options = Options.default
-) {
+) : UrlShorterApi {
 
-    fun generateUrl(originalUrl: String): String {
+    override fun generateUrl(originalUrl: String): String {
         if (urlStorage.getCount() >= options.urlsStorageLimit) {
             return errorMessage("Saving limit ${options.urlsStorageLimit} exceeded.")
         }
@@ -32,7 +32,7 @@ class UrlShorter(
         return errorMessage("Please Try latter")
     }
 
-    fun getOriginalUrl(shortUrl: String): String? {
+    override fun getOriginalUrl(shortUrl: String): String? {
         val urlKey = shortUrl.split("/").last()
         return urlStorage.getOriginalUrl(urlKey)
     }

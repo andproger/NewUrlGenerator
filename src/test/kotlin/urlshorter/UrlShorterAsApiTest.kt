@@ -1,19 +1,21 @@
 package urlshorter
 
+import kotlinx.coroutines.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
 import urlshorter.generator.UrlKeyRandomGenerator
+import urlshorter.storage.UrlStorage
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 
 
-class UrlShorterAsApiTest {
+class UrlShorterAsApiTest() {
 
     @Test
     fun `custom host - generateUrl once - returned short url and originalUrl`() {
         //GIVEN
         val host = "myhost.my"
-        val urlShorter = UrlShorter(options = UrlShorter.Options.default.copy(host = host))
+        val urlShorter: UrlShorterApi = UrlShorter(options = UrlShorter.Options.default.copy(host = host))
         val url = "http://google.com/sdfdsfsdf/sdfdsf"
 
         //WHEN
@@ -30,7 +32,7 @@ class UrlShorterAsApiTest {
     fun `custom host and alphabet - generateUrl once and try to get by fake short url - returned short url and null for originalUrl`() {
         //GIVEN
         val host = "myhost.my"
-        val urlShorter = UrlShorter(
+        val urlShorter: UrlShorterApi = UrlShorter(
             urlKeyGenerator = UrlKeyRandomGenerator(
                 UrlShorter.Defaults.URL_KEY_MAX_SIZE,
                 "abc"
@@ -52,7 +54,7 @@ class UrlShorterAsApiTest {
         //GIVEN
         val host = "myhost.my"
         val alphabet = "ab"
-        val urlShorter = UrlShorter(
+        val urlShorter: UrlShorterApi = UrlShorter(
             urlKeyGenerator = UrlKeyRandomGenerator(
                 UrlShorter.Defaults.URL_KEY_MAX_SIZE,
                 alphabet
@@ -92,7 +94,7 @@ class UrlShorterAsApiTest {
 
     @Test
     @Timeout(value = 10, unit = TimeUnit.SECONDS)
-    fun `10 million for storage and custom host - generateUrl 10 million times - returned 10 million short urls`() {
+    fun `10 million for storage limit and custom host - generateUrl 10 million times - returned 10 million short urls`() {
         //GIVEN
         val count = 10_000_000
         val host = "myhost.my"
@@ -129,7 +131,7 @@ class UrlShorterAsApiTest {
         host: String,
         urlsStorageLimit: Int? = count
     ): TestResults {
-        val urlShorter = UrlShorter(
+        val urlShorter: UrlShorterApi = UrlShorter(
             options = UrlShorter.Options.default.copy(
                 host = host,
                 urlsStorageLimit = urlsStorageLimit ?: UrlShorter.Defaults.URLS_STORAGE_LIMIT
@@ -151,5 +153,49 @@ class UrlShorterAsApiTest {
             results,
             originalUrls
         )
+    }
+
+    @Test
+    fun `1 million storage limit and custom storage - 1 million generateUrl concurrency - storage count = 1 million`() = runBlocking {
+        class UrlSynchronizedStorage(
+            val urlStorage: UrlStorage,
+            val lock: Any = Any()
+        ) : UrlStorage {
+
+            override fun save(urlKey: String, originalUrl: String) = synchronized(lock) {
+                urlStorage.save(urlKey, originalUrl)
+            }
+
+            override fun getCount() = synchronized(lock) {
+                urlStorage.getCount()
+            }
+
+            override fun getOriginalUrl(urlKey: String) = synchronized(lock) {
+                urlStorage.getOriginalUrl(urlKey)
+            }
+        }
+
+        //GIVEN
+        val memoryStorage = UrlShorter.Defaults.memoryStorage()
+        val count = 1_000_000
+        val urlShorter: UrlShorterApi = UrlShorter(
+            urlStorage = UrlSynchronizedStorage(memoryStorage),
+            options = UrlShorter.Options.default.copy(urlsStorageLimit = count)
+        )
+
+        //WHEN
+        withContext(Dispatchers.Default) {
+            val parentJob = launch(Dispatchers.Default) {
+                repeat(count) {
+                    launch {
+                        urlShorter.generateUrl(it.toString())
+                    }
+                }
+            }
+            parentJob.join()
+        }
+
+        //THEN
+        assertEquals(count, memoryStorage.getCount())
     }
 }
